@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -11,7 +10,11 @@ uploaded_file = st.file_uploader("Upload your dataset (CSV or Excel file)", type
 if uploaded_file is not None:
     # Read the file depending on the type
     if uploaded_file.name.endswith(".csv"):
-        df = pd.read_csv(uploaded_file)
+        # ---- FIX: Handle encoding errors so Streamlit never crashes ----
+        try:
+            df = pd.read_csv(uploaded_file, encoding="utf-8")
+        except UnicodeDecodeError:
+            df = pd.read_csv(uploaded_file, encoding="latin1")
     else:
         df = pd.read_excel(uploaded_file)
 
@@ -20,6 +23,7 @@ if uploaded_file is not None:
     st.write("### Preview of the Dataset")
     st.subheader("First Few Data Samples")
     st.dataframe(df.head())
+
     st.subheader("Last Few Data Samples")
     st.dataframe(df.tail())
 
@@ -41,3 +45,5 @@ if uploaded_file is not None:
         st.error("Column 'month year' not found in dataset.")
 else:
     st.info("Please upload a dataset to begin.")
+
+
